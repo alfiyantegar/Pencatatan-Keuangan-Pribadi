@@ -6,6 +6,7 @@
     <table class="w-full bg-white shadow rounded">
         <thead>
             <tr class="bg-gray-200">
+                <th class="p-2">Category Photo</th>
                 <th class="p-2">Category</th>
                 <th class="p-2">Amount</th>
                 <th class="p-2">Date</th>
@@ -16,6 +17,13 @@
         <tbody>
             @foreach ($transactions as $transaction)
                 <tr>
+                    <td class="p-2">
+                        @if ($transaction->category->photo)
+                            <img src="{{ asset('storage/' . $transaction->category->photo) }}" alt="{{ $transaction->category->name }}" class="w-12 h-12 object-cover rounded">
+                        @else
+                            <span>-</span>
+                        @endif
+                    </td>
                     <td class="p-2">{{ $transaction->category->name }}</td>
                     <td class="p-2">{{ number_format($transaction->amount, 2) }}</td>
                     <td class="p-2">{{ $transaction->transaction_date }}</td>

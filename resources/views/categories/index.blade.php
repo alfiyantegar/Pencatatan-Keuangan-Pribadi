@@ -6,6 +6,7 @@
     <table class="w-full bg-white shadow rounded">
         <thead>
             <tr class="bg-gray-200">
+                <th class="p-2">Photo</th>
                 <th class="p-2">Name</th>
                 <th class="p-2">Type</th>
                 <th class="p-2">Actions</th>
@@ -14,6 +15,13 @@
         <tbody>
             @foreach ($categories as $category)
                 <tr>
+                    <td class="p-2">
+                        @if ($category->photo)
+                            <img src="{{ asset('storage/' . $category->photo) }}" alt="{{ $category->name }}" class="w-12 h-12 object-cover rounded">
+                        @else
+                            <span>-</span>
+                        @endif
+                    </td>
                     <td class="p-2">{{ $category->name }}</td>
                     <td class="p-2">{{ ucfirst($category->type) }}</td>
                     <td class="p-2">

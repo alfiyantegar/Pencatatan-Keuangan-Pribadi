@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
@@ -23,13 +24,21 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'required|in:income,expense',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Max 2MB
         ]);
 
-        Category::create([
+        $data = [
             'user_id' => Auth::id(),
             'name' => $request->name,
             'type' => $request->type,
-        ]);
+        ];
+
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('categories', 'public');
+            $data['photo'] = $path;
+        }
+
+        Category::create($data);
         return redirect()->route('categories.index')->with('success', 'Category created.');
     }
 
@@ -45,15 +54,33 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'required|in:income,expense',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $category->update($request->all());
+        $data = [
+            'name' => $request->name,
+            'type' => $request->type,
+        ];
+
+        if ($request->hasFile('photo')) {
+            // Delete old photo if exists
+            if ($category->photo) {
+                Storage::disk('public')->delete($category->photo);
+            }
+            $path = $request->file('photo')->store('categories', 'public');
+            $data['photo'] = $path;
+        }
+
+        $category->update($data);
         return redirect()->route('categories.index')->with('success', 'Category updated.');
     }
 
     public function destroy(Category $category)
     {
         $this->authorize('delete', $category);
+        if ($category->photo) {
+            Storage::disk('public')->delete($category->photo);
+        }
         $category->delete();
         return redirect()->route('categories.index')->with('success', 'Category deleted.');
     }
